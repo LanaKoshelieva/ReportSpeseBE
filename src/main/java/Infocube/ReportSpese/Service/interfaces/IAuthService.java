@@ -4,7 +4,7 @@ import Infocube.ReportSpese.Model.User;
 
 public interface IAuthService
 {
-    User checkUser(String mail, String pass);
+    void checkUser(String mail, String password, Integer id);
 
     User checkUser(String mail);
 }

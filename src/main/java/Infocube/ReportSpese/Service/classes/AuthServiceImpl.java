@@ -3,6 +3,7 @@ package Infocube.ReportSpese.Service.classes;
 import Infocube.ReportSpese.Model.User;
 import Infocube.ReportSpese.Repository.IUserRepository;
 import Infocube.ReportSpese.Service.interfaces.IAuthService;
+import io.quarkus.security.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +22,17 @@ public class AuthServiceImpl implements IAuthService
 
 
     @Override
-    public User checkUser(String mail, String pass) {
-        return authRepository.findByEmailAndPassword(mail, pass);
+    public void checkUser(String mail, String password, Integer id)
+    {
+        User u = authRepository.findByEmailAndPassword(mail, password);
+        if(u == null)
+        {
+            throw new UnauthorizedException();
+        }
+        if(id != null && id !=u.getId())
+        {
+            throw new UnauthorizedException();
+        }
     }
 
     @Override

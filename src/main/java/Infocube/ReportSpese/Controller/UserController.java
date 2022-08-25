@@ -3,6 +3,7 @@ package Infocube.ReportSpese.Controller;
 import Infocube.ReportSpese.Command.UserCommand;
 import Infocube.ReportSpese.DTO.UserDTO;
 import Infocube.ReportSpese.Model.User;
+import Infocube.ReportSpese.Service.interfaces.IAuthService;
 import Infocube.ReportSpese.Service.interfaces.IUserService;
 import Infocube.ReportSpese.Utility.HTTPUtility;
 import Infocube.ReportSpese.Utility.Response;
@@ -17,10 +18,12 @@ import java.util.List;
 public class UserController
 {
     private final IUserService userService;
+    private final IAuthService authService;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService, IAuthService authService)
     {
         this.userService = userService;
+        this.authService = authService;
     }
 
 
@@ -42,10 +45,13 @@ public class UserController
     }
 
     @PutMapping(HTTPUtility.CONTROLLER_UPDATE_PROFILE)
-    public Response updateUser(@RequestBody UserCommand command)
+    public Response updateUser(@RequestBody UserCommand command,
+                               @RequestHeader(name = "userMail", required = false)  String userMail,
+                               @RequestHeader(name = "userPassword", required = false)  String userPassword)
     {
         try
         {
+            authService.checkUser(userMail, userPassword, command.getId());
             User u = userService.getUser(command.getId());
             u.update(command, false);
 
@@ -60,10 +66,13 @@ public class UserController
     }
 
     @DeleteMapping(HTTPUtility.CONTROLLER_DELETE_PROFILE)
-    public Response deleteUser(@PathVariable Integer id)
+    public Response deleteUser(@PathVariable Integer id,
+                               @RequestHeader(name = "userMail", required = false)  String userMail,
+                               @RequestHeader(name = "userPassword", required = false)  String userPassword)
     {
         try
         {
+            authService.checkUser(userMail, userPassword, id);
             userService.deleteUser(id);
             return new Response("Utente cancellato", 200, null);
         }
@@ -74,10 +83,12 @@ public class UserController
     }
 
     @GetMapping(HTTPUtility.CONTROLLER_USERS)
-    public Response usersList()
+    public Response usersList(@RequestHeader(name = "userMail", required = false)  String userMail,
+                              @RequestHeader(name = "userPassword", required = false)  String userPassword)
     {
         try
         {
+            authService.checkUser(userMail, userPassword, null);
             List<User> usersBase = userService.userList();
             List<UserDTO> allUsers = new ArrayList<>();
 
@@ -94,10 +105,13 @@ public class UserController
     }
 
     @GetMapping(HTTPUtility.CONTROLLER_GET_USER)
-    public Response getUser(@PathVariable Integer id)
+    public Response getUser(@PathVariable Integer id,
+                            @RequestHeader(name = "userMail", required = false)  String userMail,
+                            @RequestHeader(name = "userPassword", required = false)  String userPassword)
     {
         try
         {
+            authService.checkUser(userMail, userPassword, id);
             User u = userService.getUser(id);
             return new Response(new UserDTO(u));
         }

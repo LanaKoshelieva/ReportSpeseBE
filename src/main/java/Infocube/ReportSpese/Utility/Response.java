@@ -1,5 +1,6 @@
 package Infocube.ReportSpese.Utility;
 
+import io.quarkus.security.UnauthorizedException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,10 @@ public class Response
         message = e.getMessage();
         code = 500;
         data = null;
+        if(e.getClass() == UnauthorizedException.class)
+        {
+            code = 401;
+        }
     }
 
     public Response(Object o)
